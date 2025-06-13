@@ -1,0 +1,51 @@
+﻿# Visual Studio and .NET
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+out/
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+
+# NuGet packages
+*.nupkg
+**/packages/
+
+# ASP.NET temporary files
+appsettings*.json
+
+# Log files
+*.log
+
+# Backup & Recycle Bin
+*~
+*.tmp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Tooling
+artifacts/
+project.assets.json
+project.nuget.cache
+
+# Coverage
+coverage.opencover.xml
+coverage/*.xml
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# EF Core Migrations
+Migrations/*.Designer.cs
