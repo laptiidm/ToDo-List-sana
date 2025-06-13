@@ -1,0 +1,192 @@
+﻿@model Todo_List_3.Models.TasksViewModel
+@using Todo_List_3.Enums
+
+<style>
+    body {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        font-family: Arial, sans-serif;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1em;
+    }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #444;
+    }
+
+    th {
+        background-color: #333;
+        color: #fff;
+    }
+
+    td {
+        background-color: #2b2b2b;
+    }
+
+    select, input, button {
+        background-color: #2b2b2b;
+        color: #e0e0e0;
+        border: 1px solid #555;
+        padding: 5px;
+        margin: 5px 0;
+    }
+
+    h2, p {
+        color: #fff;
+    }
+
+    del {
+        color: #888;
+    }
+</style>
+
+<h2>Вибір сховища</h2>
+
+<form asp-controller="Tasks" asp-action="SelectStorage" method="post">
+    <select name="type" onchange="this.form.submit()">
+        <option value="Database" selected="@(Model.CurrentStorage == StorageType.Database ? "selected" : null)">База даних</option>
+        <option value="Xml" selected="@(Model.CurrentStorage == StorageType.Xml ? "selected" : null)">XML</option>
+    </select>
+</form>
+
+<p>Поточне сховище: <strong>@Model.CurrentStorage</strong></p>
+
+@if (Model.CurrentStorage == StorageType.Xml || Model.CurrentStorage == StorageType.Database)
+{
+    <h2>Додати нову задачу</h2>
+    <form asp-controller="Tasks" asp-action="Add" method="post">
+        <label for="Description">Опис:</label><br />
+        <input type="text" name="Description" value="@Model.NewTask?.Description" required /><br />
+
+        <label for="CategoryId">Категорія:</label><br />
+        <select name="CategoryId">
+            <option value="1">Робота</option>
+            <option value="2">Навчання</option>
+            <option value="3">Домашні справи</option>
+        </select><br />
+
+        <label for="DueDate">Дедлайн:</label><br />
+        <input type="date" name="DueDate" value="@Model.NewTask?.DueDate?.ToString("yyyy-MM-dd")" /><br />
+
+        <button type="submit">Додати задачу</button>
+    </form>
+}
+
+@if (Model.CurrentStorage == StorageType.Xml)
+{
+    <h2>Активні задачі (XML)</h2>
+    @if (Model.ActiveTasks.Any())
+    {
+        <table>
+            <thead>
+                <tr><th>Категорія</th><th>Опис</th><th>Дедлайн</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model.ActiveTasks)
+                {
+                    <tr>
+                        <td>@task.CategoryId</td>
+                        <td>@task.Description</td>
+                        <td>@(task.DueDate?.ToShortDateString() ?? "—")</td>
+                        <td>
+                            <form asp-controller="Tasks" asp-action="MarkAsDone" method="post">
+                                <input type="hidden" name="taskId" value="@task.TaskId" />
+                                <button type="submit">Виконано</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Активних задач немає.</p>
+    }
+
+    <h2>Виконані задачі</h2>
+    @if (Model.CompletedTasks.Any())
+    {
+        <table>
+            <thead>
+                <tr><th>Категорія</th><th>Опис</th><th>Виконано</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model.CompletedTasks.OrderByDescending(t => t.CompletedAt))
+                {
+                    <tr>
+                        <td>@task.CategoryId</td>
+                        <td><del>@task.Description</del></td>
+                        <td>@task.CompletedAt?.ToString("dd.MM.yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Виконаних задач немає.</p>
+    }
+}
+else if (Model.CurrentStorage == StorageType.Database)
+{
+    <h2>Активні задачі (База даних)</h2>
+    @if (Model.ActiveTasks.Any())
+    {
+        <table>
+            <thead>
+                <tr><th>Категорія</th><th>Опис</th><th>Дедлайн</th><th>Дія</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model.ActiveTasks)
+                {
+                    <tr>
+                        <td>@task.CategoryId</td>
+                        <td>@task.Description</td>
+                        <td>@(task.DueDate?.ToShortDateString() ?? "—")</td>
+                        <td>
+                            <form asp-controller="Tasks" asp-action="MarkAsDone" method="post">
+                                <input type="hidden" name="taskId" value="@task.TaskId" />
+                                <button type="submit">Виконано</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Активних задач немає.</p>
+    }
+
+    <h2>Виконані задачі</h2>
+    @if (Model.CompletedTasks.Any())
+    {
+        <table>
+            <thead>
+                <tr><th>Категорія</th><th>Опис</th><th>Виконано</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model.CompletedTasks.OrderByDescending(t => t.CompletedAt))
+                {
+                    <tr>
+                        <td>@task.CategoryId</td>
+                        <td><del>@task.Description</del></td>
+                        <td>@task.CompletedAt?.ToString("dd.MM.yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Виконаних задач немає.</p>
+    }
+}
+

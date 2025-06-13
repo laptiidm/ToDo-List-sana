@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Task>
+    <TaskId>1</TaskId>
+    <Description>Купити молоко</Description>
+    <DueDate>2025-06-07T00:00:00</DueDate>
+    <CategoryId>1</CategoryId>
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-05T10:00:00</CreatedAt>
+    <CompletedAt>2025-06-12T18:21:05.8500912+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>2</TaskId>
+    <Description>Написати звіт</Description>
+    <DueDate>2025-06-10T00:00:00</DueDate>
+    <CategoryId>2</CategoryId>
+    <IsDone>false</IsDone>
+    <CreatedAt>2025-06-04T15:30:00</CreatedAt>
+    <CompletedAt>2025-06-12T15:39:01.9039619+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>3</TaskId>
+    <Description>Відправити листа</Description>
+    <DueDate xsi:nil="true" />
+    <CategoryId>1</CategoryId>
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-01T09:00:00</CreatedAt>
+    <CompletedAt>2025-06-12T15:49:32.4217744+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>4</TaskId>
+    <Description>Test_001_xml</Description>
+    <DueDate>2025-06-23T00:00:00</DueDate>
+    <CategoryId xsi:nil="true" />
+    <IsDone>false</IsDone>
+    <CreatedAt>2025-06-06T15:27:15.9239484+03:00</CreatedAt>
+    <CompletedAt>2025-06-12T15:38:25.0675994+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>5</TaskId>
+    <Description>Test_001_xml</Description>
+    <DueDate>2025-06-23T00:00:00</DueDate>
+    <CategoryId xsi:nil="true" />
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-06T15:28:07.7659125+03:00</CreatedAt>
+    <CompletedAt>2025-06-06T15:28:19.3248605+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>6</TaskId>
+    <Description>Test_3377859056_xml</Description>
+    <DueDate>2025-07-11T00:00:00</DueDate>
+    <CategoryId xsi:nil="true" />
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-06T15:48:59.4623697+03:00</CreatedAt>
+    <CompletedAt>2025-06-12T15:38:15.0173679+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>7</TaskId>
+    <Description>Test_0019999999_xml</Description>
+    <DueDate>2025-06-22T00:00:00</DueDate>
+    <CategoryId xsi:nil="true" />
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-06T15:49:45.4725129+03:00</CreatedAt>
+    <CompletedAt>2025-06-12T15:28:05.2348758+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>8</TaskId>
+    <Description>Test_109_xml</Description>
+    <DueDate>2025-06-22T00:00:00</DueDate>
+    <CategoryId xsi:nil="true" />
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-06T15:53:05.2435905+03:00</CreatedAt>
+    <CompletedAt>2025-06-12T15:34:17.772618+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>9</TaskId>
+    <Description>xml_starnge_task</Description>
+    <DueDate>2025-06-28T00:00:00</DueDate>
+    <CategoryId>2</CategoryId>
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-12T15:16:29.7746577+03:00</CreatedAt>
+    <CompletedAt>2025-06-12T15:27:55.155858+03:00</CompletedAt>
+  </Task>
+  <Task>
+    <TaskId>10</TaskId>
+    <Description>badbad_starnge_task</Description>
+    <DueDate>2025-06-27T00:00:00</DueDate>
+    <CategoryId>1</CategoryId>
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-13T11:28:26.7206929+03:00</CreatedAt>
+    <CompletedAt>2025-06-13T11:28:31.8421949+03:00</CompletedAt>
+  </Task>
+</Tasks>
