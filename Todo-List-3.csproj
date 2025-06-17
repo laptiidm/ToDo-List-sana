@@ -8,9 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="8.5.0" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="8.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="6.0.36" />
+    <None Include="Todo-List-3.csproj.user" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="GraphQL" Version="8.5.0" />
+	<PackageReference Include="GraphQL.NewtonsoftJson" Version="8.5.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="6.0.36" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
   </ItemGroup>

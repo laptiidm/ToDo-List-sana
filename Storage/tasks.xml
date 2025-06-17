@@ -90,4 +90,22 @@
     <CreatedAt>2025-06-13T11:28:26.7206929+03:00</CreatedAt>
     <CompletedAt>2025-06-13T11:28:31.8421949+03:00</CompletedAt>
   </Task>
+  <Task>
+    <TaskId>11</TaskId>
+    <Description>badbad_starnge_task</Description>
+    <DueDate>2025-06-27T00:00:00</DueDate>
+    <CategoryId>1</CategoryId>
+    <IsDone>false</IsDone>
+    <CreatedAt>2025-06-13T13:15:34.6062926+03:00</CreatedAt>
+    <CompletedAt xsi:nil="true" />
+  </Task>
+  <Task>
+    <TaskId>12</TaskId>
+    <Description>xml task test</Description>
+    <DueDate>2025-07-03T00:00:00</DueDate>
+    <CategoryId>1</CategoryId>
+    <IsDone>true</IsDone>
+    <CreatedAt>2025-06-13T13:15:51.3644115+03:00</CreatedAt>
+    <CompletedAt>2025-06-13T13:15:56.157629+03:00</CompletedAt>
+  </Task>
 </Tasks>
