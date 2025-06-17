@@ -18,11 +18,18 @@ builder.Services.Configure<StorageOptions>(
 builder.Services.Configure<StorageOptions>(options =>
 {
 	options.DBConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+	// Якщо XmlFilePath не завантажується автоматично з секції "StorageOptions",
+	// або якщо ви хочете перевизначити його, додайте його тут:
+	options.XmlFilePath = builder.Configuration.GetSection("StorageOptions:XmlFilePath").Get<string>();
 });
 
 // Додавання сервісів
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
+
+// РЕЄСТРУЄМО НОВІ ПРОВАЙДЕРИ НАЛАШТУВАНЬ
+builder.Services.AddScoped<IXmlRepositorySettingsProvider, XmlRepositorySettingsProvider>();
+builder.Services.AddScoped<IDatabaseRepositorySettingsProvider, DbRepositorySettingsProvider>();
 
 // Налаштування сесії
 builder.Services.AddSession(options =>
@@ -32,35 +39,40 @@ builder.Services.AddSession(options =>
 	options.Cookie.IsEssential = true;
 });
 
-// Реєстрація сервісів для роботи зі сховищами
+// 1. РЕЄСТРУЄМО КОНКРЕТНІ РЕПОЗИТОРІЇ
+// Це дозволяє DI керувати їхнім життєвим циклом та інжектувати їхні залежності.
+builder.Services.AddScoped<XmlTaskRepository>();
+builder.Services.AddScoped<DbTaskRepository>();
+
+// 2. РЕЄСТРУЄМО StorageSelectionService ЯК ФАБРИКУ
+// Він тепер буде відповідати за вибір та отримання правильного репозиторію з DI.
 builder.Services.AddScoped<IStorageSelectionService, StorageSelectionService>();
-builder.Services.AddScoped<ITaskRepository>(provider =>
-{
-	var storageService = provider.GetRequiredService<IStorageSelectionService>();
-	var options = provider.GetRequiredService<IOptions<StorageOptions>>().Value;
 
-	if (string.IsNullOrEmpty(options.DBConnectionString))
-	{
-		throw new InvalidOperationException("The database connection string is not configured.");
-	}
+// Реєстрація сервісів для роботи зі сховищами
+//builder.Services.AddScoped<IStorageSelectionService, StorageSelectionService>();
+//builder.Services.AddScoped<ITaskRepository>(provider =>
+//{
+//	var storageService = provider.GetRequiredService<IStorageSelectionService>();
+//	var options = provider.GetRequiredService<IOptions<StorageOptions>>().Value;
 
-	return storageService.GetCurrentStorageType() switch
-	{
-		StorageType.Xml => new XmlTaskRepository(options.XmlFilePath
-			?? throw new InvalidOperationException("The XML file path is not configured.")),
-		StorageType.Database => new DbTaskRepository(options.DBConnectionString),
-		_ => throw new NotSupportedException(
-			$"Storage type '{storageService.GetCurrentStorageType()}' is not supported")
-	};
-});
+//	if (string.IsNullOrEmpty(options.DBConnectionString))
+//	{
+//		throw new InvalidOperationException("The database connection string is not configured.");
+//	}
+
+//	return storageService.GetCurrentStorageType() switch
+//	{
+//		StorageType.Xml => new XmlTaskRepository(options.XmlFilePath
+//			?? throw new InvalidOperationException("The XML file path is not configured.")),
+//		StorageType.Database => new DbTaskRepository(options.DBConnectionString),
+//		_ => throw new NotSupportedException(
+//			$"Storage type '{storageService.GetCurrentStorageType()}' is not supported")
+//	};
+//});
 
 // Реєстрація GraphQL компонентів (без middleware)
 builder.Services.AddTransient<TaskType>();
 builder.Services.AddTransient<TaskInputType>();
-builder.Services.AddTransient<GraphQLStorageType>();
-//builder.Services.AddSingleton<TaskType>();
-//builder.Services.AddSingleton<TaskInputType>();
-//builder.Services.AddSingleton<GraphQLStorageType>();
 builder.Services.AddScoped<TaskQuery>();
 builder.Services.AddScoped<TaskMutation>();
 builder.Services.AddScoped<ISchema, TaskSchema>();

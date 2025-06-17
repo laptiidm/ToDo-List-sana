@@ -1,70 +1,109 @@
-﻿using System.Xml.Serialization;
+﻿// Todo_List_3.Repositories/XmlTaskRepository.cs
+using System.Xml.Serialization;
 using Todo_List_3.Models;
+using Todo_List_3.Services;
+using System.Threading.Tasks; // ДОДАЙТЕ ЦЕЙ USING
+using System.IO;
+using System.Linq;
+using System.Xml.Linq; // Для Max та Where
 
 namespace Todo_List_3.Repositories
 {
 	public class XmlTaskRepository : ITaskRepository
 	{
 		private readonly string _xmlFilePath;
+		private readonly object _lockObject = new object();
 
-		public XmlTaskRepository(string? xmlFilePath)
+		// ЗМІНЕНО: Конструктор приймає IXmlRepositorySettingsProvider
+		public XmlTaskRepository(IXmlRepositorySettingsProvider settingsProvider)
 		{
-			_xmlFilePath = xmlFilePath ?? throw new ArgumentNullException(nameof(xmlFilePath));
-		}
+			_xmlFilePath = settingsProvider.GetFilePath();
 
-		public List<TaskModel> GetActiveTasks()
-		{
-			try
+			var directory = Path.GetDirectoryName(_xmlFilePath);
+			if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
 			{
-				var serializer = new XmlSerializer(typeof(XmlTasksWrapper));
-
-				using var stream = new FileStream(_xmlFilePath, FileMode.Open);
-				var taskListWrapper = (XmlTasksWrapper)serializer.Deserialize(stream)!;
-
-				var activeTasks = taskListWrapper.Tasks ?? new(); // simplified
-				return activeTasks.Where(task => !task.IsDone).ToList();
+				Directory.CreateDirectory(directory);
 			}
-			catch (Exception ex)
+			if (!File.Exists(_xmlFilePath))
 			{
-				Console.WriteLine($"[ERROR] Неможливо зчитати XML: {ex.Message}");
-				return new(); // simplified
+				new XDocument(new XElement("Tasks")).Save(_xmlFilePath);
 			}
 		}
 
-		public List<TaskModel> GetCompletedTasks()
-		{
-			try
-			{
-				var serializer = new XmlSerializer(typeof(XmlTasksWrapper));
-
-				using var stream = new FileStream(_xmlFilePath, FileMode.Open);
-				var taskListWrapper = (XmlTasksWrapper)serializer.Deserialize(stream)!;
-
-				var completedTasks = taskListWrapper.Tasks ?? []; // simplified   
-				return completedTasks.Where(task => task.IsDone).OrderByDescending(task => task.CompletedAt).ToList();
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"[ERROR] Неможливо зчитати XML: {ex.Message}");
-				return []; // simplified  
-			}
-		}
-
-
-		public void AddTask(TaskModel task)
+		public async Task<IEnumerable<TaskModel>> GetActiveTasks()
 		{
 			try
 			{
 				var serializer = new XmlSerializer(typeof(XmlTasksWrapper));
 				XmlTasksWrapper taskListWrapper;
 
-				// Зчитуємо існуючі задачі
+				// Асинхронне читання файлу
+				if (!File.Exists(_xmlFilePath))
+				{
+					return Enumerable.Empty<TaskModel>(); // Повертаємо порожній список, якщо файл не існує
+				}
+
+				// XmlSerializer не має прямої асинхронної десеріалізації.
+				// Обертаємо її в Task.Run, щоб не блокувати потік.
+				taskListWrapper = await Task.Run(() =>
+				{
+					using var stream = new FileStream(_xmlFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true);
+					return (XmlTasksWrapper)serializer.Deserialize(stream)!;
+				});
+
+				var activeTasks = taskListWrapper.Tasks ?? new();
+				return activeTasks.Where(task => !task.IsDone).ToList();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"[ERROR] Неможливо зчитати XML (активні задачі): {ex.Message}");
+				return Enumerable.Empty<TaskModel>();
+			}
+		}
+
+		public async Task<IEnumerable<TaskModel>> GetCompletedTasks()
+		{
+			try
+			{
+				var serializer = new XmlSerializer(typeof(XmlTasksWrapper));
+				XmlTasksWrapper taskListWrapper;
+
+				if (!File.Exists(_xmlFilePath))
+				{
+					return Enumerable.Empty<TaskModel>();
+				}
+
+				taskListWrapper = await Task.Run(() =>
+				{
+					using var stream = new FileStream(_xmlFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true);
+					return (XmlTasksWrapper)serializer.Deserialize(stream)!;
+				});
+
+				var completedTasks = taskListWrapper.Tasks ?? [];
+				return completedTasks.Where(task => task.IsDone).OrderByDescending(task => task.CompletedAt).ToList();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"[ERROR] Неможливо зчитати XML (виконані задачі): {ex.Message}");
+				return Enumerable.Empty<TaskModel>();
+			}
+		}
+
+		public async Task AddTask(TaskModel task)
+		{
+			try
+			{
+				var serializer = new XmlSerializer(typeof(XmlTasksWrapper));
+				XmlTasksWrapper taskListWrapper;
+
+				// Зчитуємо існуючі задачі асинхронно
 				if (File.Exists(_xmlFilePath))
 				{
-					using (var stream = new FileStream(_xmlFilePath, FileMode.Open))
-						{
-							taskListWrapper = (XmlTasksWrapper)serializer.Deserialize(stream)!;
-						}
+					taskListWrapper = await Task.Run(() =>
+					{
+						using var stream = new FileStream(_xmlFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true);
+						return (XmlTasksWrapper)serializer.Deserialize(stream)!;
+					});
 				}
 				else
 				{
@@ -85,11 +124,12 @@ namespace Todo_List_3.Repositories
 				// Додаємо задачу
 				taskListWrapper.Tasks!.Add(task);
 
-				// Записуємо назад у файл
-				using (var stream = new FileStream(_xmlFilePath, FileMode.Create))
+				// Записуємо назад у файл асинхронно
+				await Task.Run(() =>
 				{
+					using var stream = new FileStream(_xmlFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
 					serializer.Serialize(stream, taskListWrapper);
-				}
+				});
 			}
 			catch (Exception ex)
 			{
@@ -97,21 +137,20 @@ namespace Todo_List_3.Repositories
 			}
 		}
 
-
-		public void MarkTaskAsDone(int taskId)
+		public async Task MarkTaskAsDone(int taskId)
 		{
 			try
 			{
 				var serializer = new XmlSerializer(typeof(XmlTasksWrapper));
-
 				XmlTasksWrapper taskListWrapper;
 
 				if (File.Exists(_xmlFilePath))
 				{
-					using (var stream = new FileStream(_xmlFilePath, FileMode.Open))
+					taskListWrapper = await Task.Run(() =>
 					{
-						taskListWrapper = (XmlTasksWrapper)serializer.Deserialize(stream)!;
-					}
+						using var stream = new FileStream(_xmlFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true);
+						return (XmlTasksWrapper)serializer.Deserialize(stream)!;
+					});
 				}
 				else
 				{
@@ -127,11 +166,12 @@ namespace Todo_List_3.Repositories
 					task.IsDone = true;
 					task.CompletedAt = DateTime.Now;
 
-					// Перезаписуємо файл з оновленими даними
-					using (var stream = new FileStream(_xmlFilePath, FileMode.Create))
+					// Перезаписуємо файл з оновленими даними асинхронно
+					await Task.Run(() =>
 					{
+						using var stream = new FileStream(_xmlFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
 						serializer.Serialize(stream, taskListWrapper);
-					}
+					});
 				}
 				else
 				{
@@ -143,7 +183,5 @@ namespace Todo_List_3.Repositories
 				Console.WriteLine($"[ERROR] Помилка при позначенні задачі як виконаної: {ex.Message}");
 			}
 		}
-
-
 	}
 }

@@ -21,19 +21,19 @@ namespace Todo_List_3.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult Index()
+		public async Task<IActionResult> Index()
 		{
 			var repo = _storageSelectionService.GetCurrentRepository();
-			var activeTasks = repo?.GetActiveTasks() ?? new List<TaskModel>();
-			var completedTasks = repo?.GetCompletedTasks() ?? new List<TaskModel>();
+			var activeTasks = repo != null ? await repo.GetActiveTasks() : Enumerable.Empty<TaskModel>();
+			var completedTasks = repo != null ? await repo.GetCompletedTasks() : Enumerable.Empty<TaskModel>();
 			var currentStorage = _storageSelectionService.GetCurrentStorageType();
 
 			var model = new TasksViewModel
 			{
-				ActiveTasks = activeTasks,
-				CompletedTasks = completedTasks,
+				ActiveTasks = (List<TaskModel>)activeTasks,
+				CompletedTasks = (List<TaskModel>)completedTasks,
 				CurrentStorage = currentStorage,
-				NewTask = new TaskModel() // для форми, необов'язково, але корисно
+				NewTask = new TaskModel() // для форми, необов'язково, але корисно  
 			};
 
 			return View(model);
@@ -45,13 +45,13 @@ namespace Todo_List_3.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				// Якщо форма була некоректно заповнена — повертаємо на Index з поточними задачами
+				// Якщо форма була некоректно заповнена — повертаємо на Index з поточними задачами  
 				var repo = _storageSelectionService.GetCurrentRepository();
 
 				var model = new TasksViewModel
 				{
-					ActiveTasks = repo?.GetActiveTasks() ?? new(),
-					CompletedTasks = repo?.GetCompletedTasks() ?? new(),
+					ActiveTasks = repo?.GetActiveTasks().Result.ToList() ?? new List<TaskModel>(),
+					CompletedTasks = repo?.GetCompletedTasks().Result.ToList() ?? new List<TaskModel>(),
 					CurrentStorage = _storageSelectionService.GetCurrentStorageType(),
 					NewTask = newTask
 				};
