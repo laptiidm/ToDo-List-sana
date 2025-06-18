@@ -8,6 +8,8 @@ using GraphQL;
 using GraphQL.Types;
 using Todo_List_3.GraphQL;
 using GraphQL.NewtonsoftJson;
+using Microsoft.Extensions.DependencyInjection; // <--- ДОДАЙТЕ ЦЕЙ USING
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +26,12 @@ builder.Services.Configure<StorageOptions>(options =>
 });
 
 // Додавання сервісів
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(); 
 builder.Services.AddHttpContextAccessor();
+
+// РЕЄСТРАЦІЯ NEWTONSOFT.JSON ОКРЕМО
+builder.Services.AddControllersWithViews()
+	.AddNewtonsoftJson(); // Підключаємо Newtonsoft.Json для JSON-серіалізації (запрацювало після dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson)
 
 // РЕЄСТРУЄМО НОВІ ПРОВАЙДЕРИ НАЛАШТУВАНЬ
 builder.Services.AddScoped<IXmlRepositorySettingsProvider, XmlRepositorySettingsProvider>();

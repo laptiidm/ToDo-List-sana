@@ -29,22 +29,24 @@ namespace Todo_List_3.Controllers
 			if (query == null || string.IsNullOrEmpty(query.Query))
 				return BadRequest("GraphQL query is missing.");
 
-			// *** ОДИН ІЗ КЛЮЧОВИХ ВІДСУТНІХ БЛОКІВ КОДУ ***
-			// 1. Отримання HTTP-заголовка "X-Storage-Type"
 			string? storageTypeHeader = HttpContext.Request.Headers["X-Storage-Type"].FirstOrDefault();
 
-			// 2. Створення UserContext для передачі даних у GraphQL-виконавець
 			var userContext = new Dictionary<string, object?>
+		   {
+			   { "StorageTypeHeader", storageTypeHeader }
+		   };
+
+			Inputs variables = Inputs.Empty;
+			if (query.Variables != null)
 			{
-				{ "StorageTypeHeader", storageTypeHeader } // Передаємо значення заголовка
-                // Можете додати інші дані, які вам потрібні в UserContext
-            };
+				string? variablesJson = _serializer.Serialize(query.Variables);
 
-
-			// Convert Dictionary<string, object> to GraphQL.Inputs
-			var variables = query.Variables != null
-				? new Inputs(query.Variables.ToDictionary(kvp => kvp.Key, kvp => (object?)kvp.Value))
-				: Inputs.Empty;
+				// Fix for CS8600: Ensure variablesJson is not null before deserialization  
+				if (!string.IsNullOrEmpty(variablesJson))
+				{
+					variables = _serializer.Deserialize<Inputs>(variablesJson) ?? Inputs.Empty;
+				}
+			}
 
 			var result = await _executer.ExecuteAsync(options =>
 			{
@@ -52,17 +54,13 @@ namespace Todo_List_3.Controllers
 				options.Query = query.Query;
 				options.OperationName = query.OperationName;
 				options.Variables = variables;
-				// *** ДРУГИЙ КЛЮЧОВИЙ ВІДСУТНІЙ РЯДОК ***
-				options.UserContext = userContext; // Передаємо створений UserContext
+				options.UserContext = userContext;
 				options.RequestServices = HttpContext.RequestServices;
 				options.ThrowOnUnhandledException = true;
 			});
 
-			// ПОРАДА: Краща обробка помилок та відповіді
 			if (result.Errors?.Any() == true)
 			{
-				// Якщо є помилки, можливо, ви захочете повернути статус BadRequest (400)
-				// і серіалізувати результат, який буде містити поле "errors".
 				return BadRequest(Content(_serializer.Serialize(result), "application/json"));
 			}
 

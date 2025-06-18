@@ -108,4 +108,13 @@
     <CreatedAt>2025-06-13T13:15:51.3644115+03:00</CreatedAt>
     <CompletedAt>2025-06-13T13:15:56.157629+03:00</CompletedAt>
   </Task>
+  <Task>
+    <TaskId>13</TaskId>
+    <Description>Купити продукти</Description>
+    <DueDate>2025-06-20T10:00:00Z</DueDate>
+    <CategoryId>1</CategoryId>
+    <IsDone>false</IsDone>
+    <CreatedAt>2025-06-18T15:58:46.7335253+03:00</CreatedAt>
+    <CompletedAt xsi:nil="true" />
+  </Task>
 </Tasks>
