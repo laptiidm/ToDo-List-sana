@@ -33,7 +33,7 @@ namespace Todo_List_3.Controllers
 				ActiveTasks = (List<TaskModel>)activeTasks,
 				CompletedTasks = (List<TaskModel>)completedTasks,
 				CurrentStorage = currentStorage,
-				NewTask = new TaskModel() // для форми, необов'язково, але корисно  
+				NewTask = new TaskModel()   
 			};
 
 			return View(model);

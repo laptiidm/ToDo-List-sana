@@ -1,11 +1,8 @@
 ﻿using GraphQL.Types;
 using Todo_List_3.Enums;
-using Todo_List_3.Services; // Для IStorageSelectionService
-using GraphQL; // Для IResolveFieldContext та ExecutionError
-using Todo_List_3.Repositories; // Для ITaskRepository
-using System.Threading.Tasks; // Для Task<IEnumerable<T>>
-using System.Linq; // Для Enumerable.Empty
-using Todo_List_3.Models; // Для TaskModel
+using Todo_List_3.Services; 
+using GraphQL; 
+using Todo_List_3.Models; 
 
 namespace Todo_List_3.GraphQL
 {
@@ -19,8 +16,7 @@ namespace Todo_List_3.GraphQL
 				.Description("Gets all active tasks based on the storage type specified in the HTTP header.")
 				.ResolveAsync(async context =>
 				{
-					// Fix: Add null check for RequestServices
-					if (context.RequestServices == null)
+					if (context.RequestServices == null) // make sure we can use the DI container
 					{
 						context.Errors.Add(new ExecutionError("RequestServices is not available."));
 						return Enumerable.Empty<TaskModel>();
@@ -28,7 +24,7 @@ namespace Todo_List_3.GraphQL
 
 					var storageSelectionService = context.RequestServices.GetRequiredService<IStorageSelectionService>();
 
-					if (context.UserContext.TryGetValue("StorageTypeHeader", out object? storageTypeObj) && storageTypeObj is string storageTypeHeader)
+					if (context.UserContext.TryGetValue("StorageTypeHeader", out object? storageTypeObj) && storageTypeObj is string storageTypeHeader) // ensure that the  header is passed as a string to the user context
 					{
 						if (Enum.TryParse<StorageType>(storageTypeHeader, true, out var storageType))
 						{
@@ -43,9 +39,8 @@ namespace Todo_List_3.GraphQL
 
 			Field<ListGraphType<TaskType>>("completedTasks")
 				.Description("Gets all completed tasks based on the storage type specified in the HTTP header.")
-				.ResolveAsync(async context =>
+				.ResolveAsync(async context => // make sure we can use the DI container
 				{
-					// Fix: Add null check for RequestServices
 					if (context.RequestServices == null)
 					{
 						context.Errors.Add(new ExecutionError("RequestServices is not available."));
@@ -69,3 +64,6 @@ namespace Todo_List_3.GraphQL
 		}
 	}
 }
+
+// TaskQuery defines the GraphQL query operations for retrieving task data
+

@@ -6,8 +6,8 @@ namespace Todo_List_3.Services;
 
 public interface IStorageSelectionService
 {
-	StorageType GetCurrentStorageType();
-	void SetCurrentStorageType(StorageType selectedStorageType);
-	ITaskRepository GetCurrentRepository();
-	ITaskRepository GetRepositoryByStorageType(StorageType storageType);
+	StorageType GetCurrentStorageType(); // base
+	void SetCurrentStorageType(StorageType selectedStorageType); // base
+	ITaskRepository GetCurrentRepository(); // base
+	ITaskRepository GetRepositoryByStorageType(StorageType storageType); // GraphQL (uses h)
 }

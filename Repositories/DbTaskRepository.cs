@@ -1,10 +1,6 @@
-﻿// Todo_List_3.Repositories/DbTaskRepository.cs
-using System;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Todo_List_3.Models;
 using Todo_List_3.Services;
-using System.Threading.Tasks; // ДОДАЙТЕ ЦЕЙ USING
 
 namespace Todo_List_3.Repositories
 {
@@ -12,7 +8,7 @@ namespace Todo_List_3.Repositories
 	{
 		private readonly string _connectionString;
 
-		// ЗМІНЕНО: Конструктор приймає IDbRepositorySettingsProvider
+		// the constructor gets the connection string via IDbRepositorySettingsProvider
 		public DbTaskRepository(IDatabaseRepositorySettingsProvider settingsProvider)
 		{
 			_connectionString = settingsProvider.GetConnectionString();
@@ -25,10 +21,10 @@ namespace Todo_List_3.Repositories
 			using (var connection = new SqlConnection(_connectionString))
 			{
 				var command = new SqlCommand("SELECT * FROM tasks WHERE is_done = 0", connection);
-				await connection.OpenAsync(); // Асинхронне відкриття з'єднання
-				using (var reader = await command.ExecuteReaderAsync()) // Асинхронне виконання запиту
+				await connection.OpenAsync(); 
+				using (var reader = await command.ExecuteReaderAsync()) 
 				{
-					while (await reader.ReadAsync()) // Асинхронне читання записів
+					while (await reader.ReadAsync()) 
 					{
 						tasks.Add(ReadTask(reader));
 					}
@@ -70,8 +66,8 @@ namespace Todo_List_3.Repositories
 				command.Parameters.AddWithValue("@created_at", task.CreatedAt ?? DateTime.Now);
 				command.Parameters.AddWithValue("@completed_at", task.CompletedAt ?? (object)DBNull.Value);
 
-				await connection.OpenAsync(); // Асинхронне відкриття
-				await command.ExecuteNonQueryAsync(); // Асинхронне виконання
+				await connection.OpenAsync(); 
+				await command.ExecuteNonQueryAsync(); 
 			}
 		}
 
@@ -94,7 +90,6 @@ namespace Todo_List_3.Repositories
 
 		private TaskModel ReadTask(SqlDataReader reader)
 		{
-			// Цей допоміжний метод залишається синхронним, оскільки він просто читає дані з вже заповненого reader.
 			return new TaskModel
 			{
 				TaskId = (int)reader["task_id"],

@@ -14,9 +14,9 @@
     <Description>Написати звіт</Description>
     <DueDate>2025-06-10T00:00:00</DueDate>
     <CategoryId>2</CategoryId>
-    <IsDone>false</IsDone>
+    <IsDone>true</IsDone>
     <CreatedAt>2025-06-04T15:30:00</CreatedAt>
-    <CompletedAt>2025-06-12T15:39:01.9039619+03:00</CompletedAt>
+    <CompletedAt>2025-06-18T22:03:10.6664313+03:00</CompletedAt>
   </Task>
   <Task>
     <TaskId>3</TaskId>
@@ -115,6 +115,24 @@
     <CategoryId>1</CategoryId>
     <IsDone>false</IsDone>
     <CreatedAt>2025-06-18T15:58:46.7335253+03:00</CreatedAt>
+    <CompletedAt xsi:nil="true" />
+  </Task>
+  <Task>
+    <TaskId>14</TaskId>
+    <Description>badbad_starnge_task_again_and_again</Description>
+    <DueDate>2025-07-23T00:00:00</DueDate>
+    <CategoryId>2</CategoryId>
+    <IsDone>false</IsDone>
+    <CreatedAt>2025-06-18T22:03:07.1847774+03:00</CreatedAt>
+    <CompletedAt xsi:nil="true" />
+  </Task>
+  <Task>
+    <TaskId>15</TaskId>
+    <Description>Якась там задачка</Description>
+    <DueDate>2025-06-20T10:00:00Z</DueDate>
+    <CategoryId>1</CategoryId>
+    <IsDone>false</IsDone>
+    <CreatedAt>2025-06-20T16:31:07.6619398+03:00</CreatedAt>
     <CompletedAt xsi:nil="true" />
   </Task>
 </Tasks>

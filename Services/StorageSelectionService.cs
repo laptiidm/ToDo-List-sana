@@ -1,10 +1,7 @@
 ﻿using Todo_List_3.Enums;
-using Microsoft.AspNetCore.Http;
-using System;
 using Todo_List_3.Configurations;
 using Microsoft.Extensions.Options;
 using Todo_List_3.Repositories;
-using Microsoft.Extensions.DependencyInjection; // Додаємо цей using для GetRequiredService
 
 namespace Todo_List_3.Services
 {
@@ -12,13 +9,13 @@ namespace Todo_List_3.Services
 	{
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly StorageOptions _storageOptions;
-		private readonly IServiceProvider _serviceProvider; // ТЕПЕР ВІН ВИКОРИСТОВУЄТЬСЯ ДЛЯ ОТРИМАННЯ РЕПОЗИТОРІЇВ
+		private readonly IServiceProvider _serviceProvider; // for getting repo`s
 		private const string StorageTypeSessionKey = "CurrentStorageType";
 
 		public StorageSelectionService(
 			IHttpContextAccessor httpContextAccessor,
 			IOptions<StorageOptions> options,
-			IServiceProvider serviceProvider) // Інжектуємо IServiceProvider
+			IServiceProvider serviceProvider)
 		{
 			_httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 			_storageOptions = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -27,12 +24,11 @@ namespace Todo_List_3.Services
 
 		public StorageType GetCurrentStorageType()
 		{
-			// Цей метод все ще працює з сесією для визначення поточного типу сховища
-			// (використовується для дефолтного значення або вибору користувача через веб-інтерфейс).
+			// get the current storage type from session
 			var session = _httpContextAccessor?.HttpContext?.Session;
 			if (session == null)
 			{
-				return _storageOptions.DefaultStorageType; // Або інша логіка для відсутності сесії
+				return _storageOptions.DefaultStorageType; 
 			}
 
 			var storedTypeString = session.GetString(StorageTypeSessionKey);
@@ -56,21 +52,19 @@ namespace Todo_List_3.Services
 			session.SetString(StorageTypeSessionKey, storageType.ToString());
 		}
 
-		// Цей метод повертає репозиторій на основі поточного типу сховища з сесії
+		// get a repo based on the current storage
 		public ITaskRepository GetCurrentRepository()
 		{
 			var currentStorage = GetCurrentStorageType();
 			return GetRepositoryFromProvider(currentStorage);
 		}
-
-		// Цей метод повертає репозиторій на основі типу сховища, переданого як аргумент
-		// Він буде використовуватися в GraphQL резолверах
+		// for GraphQL resolvers
 		public ITaskRepository GetRepositoryByStorageType(StorageType storageType)
 		{
 			return GetRepositoryFromProvider(storageType);
 		}
 
-		// ДОПОМІЖНИЙ МЕТОД: отримує репозиторій з DI-контейнера
+		// auxiliary method
 		private ITaskRepository GetRepositoryFromProvider(StorageType storageType)
 		{
 			return storageType switch

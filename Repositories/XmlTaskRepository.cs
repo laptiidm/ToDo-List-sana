@@ -1,11 +1,7 @@
-﻿// Todo_List_3.Repositories/XmlTaskRepository.cs
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using Todo_List_3.Models;
 using Todo_List_3.Services;
-using System.Threading.Tasks; // ДОДАЙТЕ ЦЕЙ USING
-using System.IO;
-using System.Linq;
-using System.Xml.Linq; // Для Max та Where
+using System.Xml.Linq; 
 
 namespace Todo_List_3.Repositories
 {
@@ -14,7 +10,7 @@ namespace Todo_List_3.Repositories
 		private readonly string _xmlFilePath;
 		private readonly object _lockObject = new object();
 
-		// ЗМІНЕНО: Конструктор приймає IXmlRepositorySettingsProvider
+		// the constructor gets the filepath via IDbRepositorySettingsProvider
 		public XmlTaskRepository(IXmlRepositorySettingsProvider settingsProvider)
 		{
 			_xmlFilePath = settingsProvider.GetFilePath();
@@ -37,10 +33,9 @@ namespace Todo_List_3.Repositories
 				var serializer = new XmlSerializer(typeof(XmlTasksWrapper));
 				XmlTasksWrapper taskListWrapper;
 
-				// Асинхронне читання файлу
 				if (!File.Exists(_xmlFilePath))
 				{
-					return Enumerable.Empty<TaskModel>(); // Повертаємо порожній список, якщо файл не існує
+					return Enumerable.Empty<TaskModel>(); 
 				}
 
 				// XmlSerializer не має прямої асинхронної десеріалізації.

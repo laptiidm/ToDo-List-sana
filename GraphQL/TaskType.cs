@@ -10,7 +10,7 @@ namespace Todo_List_3.GraphQL
 			Name = "Task"; //ім'я типу
 
 			Field(x => x.TaskId).Description("Ідентифікатор задачі"); // Field() метод-реєстратор
-			Field(x => x.Description, nullable: true).Description("Опис задачі"); // Візьми об’єкт x (який є екземпляром TaskModel) і поверни його властивість Description
+			Field(x => x.Description, nullable: true).Description("Опис задачі"); // візьми об’єкт x (який є екземпляром TaskModel) і поверни його властивість Description
 			Field(x => x.DueDate, nullable: true).Description("Дедлайн");
 			Field(x => x.CategoryId, nullable: true).Description("ID категорії");
 			Field(x => x.IsDone).Description("Чи виконано задачу");
@@ -21,3 +21,5 @@ namespace Todo_List_3.GraphQL
 	}
 }
 
+
+// GraphQL requires a schema that describes what and how to return to the client.

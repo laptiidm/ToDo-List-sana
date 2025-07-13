@@ -1,27 +1,17 @@
-﻿using Microsoft.Extensions.Options;
-using Todo_List_3.Configurations;
+﻿using Todo_List_3.Configurations;
 using Todo_List_3.Repositories;
-using Todo_List_3.Enums;
-using Todo_List_3.Models;
 using Todo_List_3.Services;
+using Todo_List_3.GraphQL;
 using GraphQL;
 using GraphQL.Types;
-using Todo_List_3.GraphQL;
 using GraphQL.NewtonsoftJson;
-using Microsoft.Extensions.DependencyInjection; // <--- ДОДАЙТЕ ЦЕЙ USING
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Конфігурація StorageOptions
-builder.Services.Configure<StorageOptions>(
-	builder.Configuration.GetSection("StorageOptions"));
-
 builder.Services.Configure<StorageOptions>(options =>
 {
 	options.DBConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-	// Якщо XmlFilePath не завантажується автоматично з секції "StorageOptions",
-	// або якщо ви хочете перевизначити його, додайте його тут:
 	options.XmlFilePath = builder.Configuration.GetSection("StorageOptions:XmlFilePath").Get<string>();
 });
 
@@ -29,15 +19,15 @@ builder.Services.Configure<StorageOptions>(options =>
 builder.Services.AddControllersWithViews(); 
 builder.Services.AddHttpContextAccessor();
 
-// РЕЄСТРАЦІЯ NEWTONSOFT.JSON ОКРЕМО
+// NEWTONSOFT.JSON ОКРЕМО
 builder.Services.AddControllersWithViews()
-	.AddNewtonsoftJson(); // Підключаємо Newtonsoft.Json для JSON-серіалізації (запрацювало після dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson)
+	.AddNewtonsoftJson(); 
 
-// РЕЄСТРУЄМО НОВІ ПРОВАЙДЕРИ НАЛАШТУВАНЬ
+// settings providers, role: provide configuration values '​​in isolation'
 builder.Services.AddScoped<IXmlRepositorySettingsProvider, XmlRepositorySettingsProvider>();
 builder.Services.AddScoped<IDatabaseRepositorySettingsProvider, DbRepositorySettingsProvider>();
 
-// Налаштування сесії
+// session
 builder.Services.AddSession(options =>
 {
 	options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -45,47 +35,22 @@ builder.Services.AddSession(options =>
 	options.Cookie.IsEssential = true;
 });
 
-// 1. РЕЄСТРУЄМО КОНКРЕТНІ РЕПОЗИТОРІЇ
-// Це дозволяє DI керувати їхнім життєвим циклом та інжектувати їхні залежності.
+// automatically created and provided where needed
 builder.Services.AddScoped<XmlTaskRepository>();
 builder.Services.AddScoped<DbTaskRepository>();
 
-// 2. РЕЄСТРУЄМО StorageSelectionService ЯК ФАБРИКУ
-// Він тепер буде відповідати за вибір та отримання правильного репозиторію з DI.
+// factory
 builder.Services.AddScoped<IStorageSelectionService, StorageSelectionService>();
 
-// Реєстрація сервісів для роботи зі сховищами
-//builder.Services.AddScoped<IStorageSelectionService, StorageSelectionService>();
-//builder.Services.AddScoped<ITaskRepository>(provider =>
-//{
-//	var storageService = provider.GetRequiredService<IStorageSelectionService>();
-//	var options = provider.GetRequiredService<IOptions<StorageOptions>>().Value;
 
-//	if (string.IsNullOrEmpty(options.DBConnectionString))
-//	{
-//		throw new InvalidOperationException("The database connection string is not configured.");
-//	}
-
-//	return storageService.GetCurrentStorageType() switch
-//	{
-//		StorageType.Xml => new XmlTaskRepository(options.XmlFilePath
-//			?? throw new InvalidOperationException("The XML file path is not configured.")),
-//		StorageType.Database => new DbTaskRepository(options.DBConnectionString),
-//		_ => throw new NotSupportedException(
-//			$"Storage type '{storageService.GetCurrentStorageType()}' is not supported")
-//	};
-//});
-
-// Реєстрація GraphQL компонентів (без middleware)
 builder.Services.AddTransient<TaskType>();
 builder.Services.AddTransient<TaskInputType>();
 builder.Services.AddScoped<TaskQuery>();
 builder.Services.AddScoped<TaskMutation>();
-builder.Services.AddScoped<ISchema, TaskSchema>();
-builder.Services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
+builder.Services.AddScoped<ISchema, TaskSchema>(); // constructor injection -> GraphQLController
+builder.Services.AddSingleton<IDocumentExecuter, DocumentExecuter>(); // constructor injection -> GraphQLController
 
-// <-- Заміна IDocumentSerializer на IGraphQLTextSerializer -->
-builder.Services.AddSingleton<IGraphQLTextSerializer, GraphQLSerializer>();
+builder.Services.AddSingleton<IGraphQLTextSerializer, GraphQLSerializer>(); // constructor injection -> GraphQLController
 
 builder.Services.AddCors(options =>
 {

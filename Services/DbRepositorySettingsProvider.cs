@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Todo_List_3.Configurations;
 
-namespace Todo_List_3.Services // Або інший простір імен для провайдерів
+namespace Todo_List_3.Services 
 {
 	public class DbRepositorySettingsProvider : IDatabaseRepositorySettingsProvider
 	{
