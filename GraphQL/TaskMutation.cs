@@ -29,7 +29,7 @@ namespace Todo_List_3.GraphQL
 					var storageSelectionService = context.RequestServices.GetRequiredService<IStorageSelectionService>();
 
 					// try to get header
-					if (!context.UserContext.TryGetValue("StorageTypeHeader", out object? storageTypeObj) || !(storageTypeObj is string storageTypeHeader) || !Enum.TryParse<StorageType>(storageTypeHeader, true, out var storageType))
+					if (!context.UserContext.TryGetValue("StorageType", out object? storageTypeObj) || !(storageTypeObj is string storageTypeHeader) || !Enum.TryParse<StorageType>(storageTypeHeader, true, out var storageType))
 					{
 						context.Errors.Add(new ExecutionError("HTTP header 'X-Storage-Type' is missing or invalid. Expected 'XML' or 'Database'."));
 						return null;
@@ -68,7 +68,7 @@ namespace Todo_List_3.GraphQL
 
 					var storageSelectionService = context.RequestServices.GetRequiredService<IStorageSelectionService>();
 
-					if (!context.UserContext.TryGetValue("StorageTypeHeader", out object? storageTypeObj) || !(storageTypeObj is string storageTypeHeader) || !Enum.TryParse<StorageType>(storageTypeHeader, true, out var storageType))
+					if (!context.UserContext.TryGetValue("StorageType", out object? storageTypeObj) || !(storageTypeObj is string StorageType) || !Enum.TryParse<StorageType>(StorageType, true, out var storageType))
 					{
 						context.Errors.Add(new ExecutionError("HTTP header 'X-Storage-Type' is missing or invalid. Expected 'XML' or 'Database'."));
 						return false;

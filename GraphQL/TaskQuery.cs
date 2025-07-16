@@ -24,7 +24,7 @@ namespace Todo_List_3.GraphQL
 
 					var storageSelectionService = context.RequestServices.GetRequiredService<IStorageSelectionService>();
 
-					if (context.UserContext.TryGetValue("StorageTypeHeader", out object? storageTypeObj) && storageTypeObj is string storageTypeHeader) // ensure that the  header is passed as a string to the user context
+					if (context.UserContext.TryGetValue("StorageType", out object? storageTypeObj) && storageTypeObj is string storageTypeHeader) // ensure that the  header is passed as a string to the user context
 					{
 						if (Enum.TryParse<StorageType>(storageTypeHeader, true, out var storageType))
 						{
@@ -49,7 +49,7 @@ namespace Todo_List_3.GraphQL
 
 					var storageSelectionService = context.RequestServices.GetRequiredService<IStorageSelectionService>();
 
-					if (context.UserContext.TryGetValue("StorageTypeHeader", out object? storageTypeObj) && storageTypeObj is string storageTypeHeader)
+					if (context.UserContext.TryGetValue("StorageType", out object? storageTypeObj) && storageTypeObj is string storageTypeHeader)
 					{
 						if (Enum.TryParse<StorageType>(storageTypeHeader, true, out var storageType))
 						{

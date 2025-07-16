@@ -16,12 +16,12 @@ builder.Services.Configure<StorageOptions>(options =>
 });
 
 // Додавання сервісів
-builder.Services.AddControllersWithViews(); 
+builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 
 // NEWTONSOFT.JSON ОКРЕМО
 builder.Services.AddControllersWithViews()
-	.AddNewtonsoftJson(); 
+	.AddNewtonsoftJson();
 
 // settings providers, role: provide configuration values '​​in isolation'
 builder.Services.AddScoped<IXmlRepositorySettingsProvider, XmlRepositorySettingsProvider>();
@@ -45,12 +45,23 @@ builder.Services.AddScoped<IStorageSelectionService, StorageSelectionService>();
 
 builder.Services.AddTransient<TaskType>();
 builder.Services.AddTransient<TaskInputType>();
-builder.Services.AddScoped<TaskQuery>();
-builder.Services.AddScoped<TaskMutation>();
-builder.Services.AddScoped<ISchema, TaskSchema>(); // constructor injection -> GraphQLController
-builder.Services.AddSingleton<IDocumentExecuter, DocumentExecuter>(); // constructor injection -> GraphQLController
+builder.Services.AddSingleton<TaskQuery>();
+builder.Services.AddSingleton<TaskMutation>();
+builder.Services.AddSingleton<ISchema>(services =>
+	new TaskSchema(
+		services.GetRequiredService<IServiceProvider>()
+	));
 
-builder.Services.AddSingleton<IGraphQLTextSerializer, GraphQLSerializer>(); // constructor injection -> GraphQLController
+//builder.Services.AddScoped<ISchema, TaskSchema>(); // constructor injection -> GraphQLController
+
+
+builder.Services.AddGraphQL(configure =>
+{
+	configure
+		.AddSystemTextJson() // or .AddNewtonsoftJson()
+		.AddSchema<TaskSchema>()
+		.AddUserContextBuilder<CustomUserContextBuilder>();
+});
 
 builder.Services.AddCors(options =>
 {
@@ -78,6 +89,8 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 app.UseAuthorization();
+
+app.UseGraphQL<TaskSchema>("/graphql");
 
 app.MapControllerRoute(
 	name: "default",
